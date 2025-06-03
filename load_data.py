@@ -40,6 +40,12 @@ def create_table_from_df(cursor, table_name, df):
     cursor.execute(create_query)
 
 def insert_data(cursor, table_name, df):
+    cursor.execute(f"SELECT COUNT(*) FROM {table_name};")
+    row_count = cursor.fetchone()[0]
+    if row_count > 0:
+        print(f"Tabela '{table_name}' zawiera już dane – pomijam wstawianie.")
+        return
+
     for _, row in df.iterrows():
         columns = [sql.Identifier(col) for col in df.columns]
         values = [sql.Literal(val) for val in row]
@@ -49,6 +55,8 @@ def insert_data(cursor, table_name, df):
             sql.SQL(', ').join(values)
         )
         cursor.execute(insert_query)
+    print(f"Wstawiono dane do tabeli '{table_name}'")
+
 
 def main():
     conn = psycopg2.connect(**db_config)
@@ -58,11 +66,11 @@ def main():
     for table_name, filepath in files.items():
         df = pd.read_csv(filepath)
         create_table_from_df(cur, table_name, df)
-        insert_data(cur, table_name, df)
-        print(f"Wstawiono dane do tabeli '{table_name}'")
+        insert_data(cur, table_name, df)  # ta funkcja już wypisuje co trzeba
 
     cur.close()
     conn.close()
+
 
 if __name__ == '__main__':
     main()

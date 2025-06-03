@@ -83,6 +83,22 @@ services:
     networks:
       - backend
 
+  spark:
+    image: bitnami/spark:3.5
+    container_name: spark
+    depends_on:
+      - kafka
+    environment:
+      - SPARK_MODE=client
+    volumes:
+      - .:/app
+    working_dir: /app
+    networks:
+      - backend
+    command: >
+      bash -c "pip install pyspark &&
+               spark-submit --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.0 spark_streaming.py"
+
 volumes:
   postgres_data:
 

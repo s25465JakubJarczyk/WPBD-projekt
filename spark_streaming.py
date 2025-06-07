@@ -33,6 +33,14 @@ df_parsed = df.selectExpr("CAST(value AS STRING) as json_str") \
     .filter(col("op") == "c") \
     .filter(col("price") > 3000)
 
+# Zapis do Delta Lake w MinIO (S3)
+query = df_parsed.writeStream \
+    .format("delta") \
+    .outputMode("append") \
+    .option("checkpointLocation", "/tmp/checkpoints/products") \
+    .option("path", "s3a://processed/products") \
+    .start()
+
 # Wyświetlanie na konsolę
 query = df_parsed.writeStream \
     .outputMode("append") \

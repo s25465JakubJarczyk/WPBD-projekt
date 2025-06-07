@@ -74,15 +74,6 @@ services:
     networks:
       - backend
 
-  kafka-consumer:
-    build: .
-    container_name: kafka-consumer
-    depends_on:
-      - kafka
-    command: python kafka_consumer.py
-    networks:
-      - backend
-
   spark:
     image: bitnami/spark:3.5
     container_name: spark
